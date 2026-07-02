@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>機器人馬達角度計算機</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <button class="settings-btn" id="settingsBtn" title="設定">⚙</button>
+
+  <aside class="settings-panel" id="settingsPanel">
+    <h2>設定</h2>
+
+    <div class="setting-group">
+      <label for="modeSelect">計算模式</label>
+      <select id="modeSelect">
+        <option value="physics">萬用輪子公式模式</option>
+        <option value="calibration">實測校正模式</option>
+      </select>
+      <div class="setting-desc">
+        萬用模式只需要輪子直徑；實測模式會使用下方的實測資料。
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label for="wheelDiameterInput">輪子直徑，單位：公分</label>
+      <input id="wheelDiameterInput" type="number" step="0.01" min="0.01" value="6" />
+      <div class="setting-desc">
+        量輪子從左邊到右邊的寬度，不是半徑。
+      </div>
+    </div>
+
+    <div class="setting-actions">
+      <button id="saveSettingsBtn">儲存</button>
+      <button id="resetSettingsBtn">重設</button>
+    </div>
+  </aside>
+
+  <main class="container">
+    <section class="header">
+      <h1>機器人馬達角度計算機</h1>
+      <p>
+        輸入車子要前進的公分數，系統會自動換算馬達需要旋轉幾度。
+        右上角可以設定輪子直徑，也可以切換成實測校正模式。
+      </p>
+      <div class="mode-badge" id="modeBadge">目前模式：萬用輪子公式模式</div>
+    </section>
+
+    <section class="content">
+      <label for="targetCmInput">請輸入目標距離，單位：公分</label>
+
+      <div class="input-row">
+        <input id="targetCmInput" type="number" step="0.01" min="0" placeholder="例如：36" />
+        <button id="copyDegreesBtn">複製角度</button>
+      </div>
+
+      <div class="result">
+        <div class="result-title">馬達需要旋轉</div>
+        <div class="degree" id="degreeOutput">0.00 <span>度</span></div>
+        <div class="note" id="copyNote">輸入公分後會自動計算</div>
+        <div class="warning" id="warningBox"></div>
+      </div>
+
+      <div class="grid">
+        <div class="box">
+          <h3>實測校正資料</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>馬達角度</th>
+                <th>實際位移</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td><input class="cal-input angle-input" type="number" step="0.01" value="100" /></td>
+                <td><input class="cal-input distance-input" type="number" step="0.01" value="10.5" /></td>
+              </tr>
+
+              <tr>
+                <td><input class="cal-input angle-input" type="number" step="0.01" value="200" /></td>
+                <td><input class="cal-input distance-input" type="number" step="0.01" value="19.5" /></td>
+              </tr>
+
+              <tr>
+                <td><input class="cal-input angle-input" type="number" step="0.01" value="400" /></td>
+                <td><input class="cal-input distance-input" type="number" step="0.01" value="36" /></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="mini-buttons">
+            <button id="saveCalibrationBtn">儲存實測資料</button>
+            <button id="resetCalibrationBtn">恢復預設</button>
+          </div>
+
+          <p class="small-text">
+            實測模式會用最接近的兩組資料做分段換算，比硬套曲線更安全。
+          </p>
+        </div>
+
+        <div class="box">
+          <h3>目前使用公式</h3>
+
+          <p class="formula-text">
+            <code id="formulaOutput">角度 = 目標公分 ÷ (輪子直徑 × π) × 360</code>
+          </p>
+
+          <p id="detailOutput" class="detail-text">
+            輪子直徑：6 公分
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

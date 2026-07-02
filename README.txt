@@ -1,25 +1,31 @@
-Robot Motor Degree Calculator
+機器人馬達角度計算機
 
-Open robot_motor_calculator.html directly in your browser.
-No internet, no Python, and no installation are required for the HTML version.
+資料夾內容：
+- index.html
+- style.css
+- script.js
+- README.txt
 
-Formula:
-degrees = 50 * (39 - sqrt(1537 - 16 * cm))
+使用方式：
+1. 打開 index.html 就可以直接使用。
+2. 若要放到 GitHub Pages，請把整個資料夾內的檔案上傳到 Repository 根目錄。
+3. 到 GitHub 的 Settings → Pages。
+4. Source 選 Deploy from a branch。
+5. Branch 選 main，資料夾選 /(root)。
+6. 等 1～3 分鐘後即可開啟網站。
 
-This formula is based on these calibration data points:
-100 degrees = 10.5 cm
-200 degrees = 19.5 cm
-400 degrees = 36 cm
+功能：
+- 輸入公分，自動換算馬達角度。
+- 右上角設定可切換：
+  1. 萬用輪子公式模式
+  2. 實測校正模式
+- 萬用模式只需要設定輪子直徑。
+- 實測模式可以修改三組實測資料。
+- 支援儲存設定與實測資料。
+- 有滑鼠細尾翼效果。
 
-Best accuracy is inside the measured range: 10.5 cm to 36 cm.
-Outside that range, the website still calculates, but the result is an estimate.
+萬用公式：
+角度 = 目標公分 ÷ (輪子直徑 × π) × 360
 
-Optional Flask version:
-1. Install Flask:
-   pip install flask
-
-2. Run:
-   python app.py
-
-3. Open:
-   http://127.0.0.1:5000
+實測模式：
+用最接近的兩組實測資料做分段換算。
