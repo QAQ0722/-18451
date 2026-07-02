@@ -20,6 +20,7 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
+      overflow-x: hidden;
     }
 
     .container {
@@ -29,6 +30,8 @@
       border-radius: 24px;
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
       overflow: hidden;
+      position: relative;
+      z-index: 2;
     }
 
     .header {
@@ -182,6 +185,65 @@
 
     th {
       color: #6b7280;
+    }
+
+    /* 滑鼠尾翼效果 */
+    .mouse-trail {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 36px;
+      height: 9px;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 9999;
+      background: linear-gradient(
+        90deg,
+        rgba(17, 24, 39, 0.8),
+        rgba(17, 24, 39, 0.35),
+        transparent
+      );
+      transform: translate(-50%, -50%) rotate(var(--angle)) scale(1);
+      animation: trailFade 0.55s ease-out forwards;
+      filter: blur(0.4px);
+    }
+
+    .mouse-dot {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+      background: rgba(17, 24, 39, 0.9);
+      transform: translate(-50%, -50%);
+      animation: dotFade 0.45s ease-out forwards;
+    }
+
+    @keyframes trailFade {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(var(--angle)) scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--angle)) scale(0.2);
+      }
+    }
+
+    @keyframes dotFade {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.2);
+      }
     }
 
     @media (max-width: 640px) {
@@ -351,6 +413,54 @@
     }
 
     cmInput.addEventListener("input", updateCalculator);
+
+    /* 滑鼠尾翼程式 */
+    let lastMouseX = null;
+    let lastMouseY = null;
+    let trailTimer = 0;
+
+    document.addEventListener("mousemove", function(event) {
+      const now = Date.now();
+
+      if (now - trailTimer < 10) {
+        return;
+      }
+
+      trailTimer = now;
+
+      const x = event.clientX;
+      const y = event.clientY;
+
+      let angle = 0;
+
+      if (lastMouseX !== null && lastMouseY !== null) {
+        const dx = x - lastMouseX;
+        const dy = y - lastMouseY;
+        angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      }
+
+      lastMouseX = x;
+      lastMouseY = y;
+
+      const trail = document.createElement("div");
+      trail.className = "mouse-trail";
+      trail.style.left = x + "px";
+      trail.style.top = y + "px";
+      trail.style.setProperty("--angle", angle + "deg");
+
+      const dot = document.createElement("div");
+      dot.className = "mouse-dot";
+      dot.style.left = x + "px";
+      dot.style.top = y + "px";
+
+      document.body.appendChild(trail);
+      document.body.appendChild(dot);
+
+      setTimeout(function() {
+        trail.remove();
+        dot.remove();
+      }, 600);
+    });
   </script>
 </body>
 </html>
