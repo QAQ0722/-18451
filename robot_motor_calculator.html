@@ -1,102 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Robot Motor Degree Calculator</title>
-  <style>
-    :root {
-      --bg: #f4f5f7;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --border: #d1d5db;
-      --dark: #111827;
-      --soft: #eef0f4;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>機器人馬達角度計算機</title>
 
+  <style>
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #f7f7f8, #e9ebef);
-      color: var(--text);
       min-height: 100vh;
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, #f5f5f5, #e8eaee);
+      color: #1f2937;
       display: flex;
-      align-items: center;
       justify-content: center;
-      padding: 24px;
+      align-items: center;
+      padding: 20px;
     }
 
     .container {
       width: 100%;
       max-width: 760px;
-      background: var(--card);
+      background: white;
       border-radius: 24px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
       overflow: hidden;
     }
 
-    .hero {
-      padding: 34px 34px 24px;
-      background: var(--dark);
+    .header {
+      background: #111827;
       color: white;
+      padding: 34px;
     }
 
-    .hero h1 {
+    .header h1 {
       margin: 0;
-      font-size: 30px;
-      letter-spacing: -0.5px;
+      font-size: 32px;
     }
 
-    .hero p {
-      margin: 10px 0 0;
+    .header p {
+      margin: 12px 0 0;
       color: #d1d5db;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     .content {
-      padding: 30px 34px 34px;
+      padding: 34px;
     }
 
     label {
       display: block;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: bold;
       margin-bottom: 10px;
-      font-size: 17px;
     }
 
     .input-row {
       display: flex;
       gap: 12px;
-      align-items: stretch;
     }
 
     input {
       flex: 1;
       padding: 16px;
       font-size: 22px;
-      border: 1px solid var(--border);
+      border: 1px solid #d1d5db;
       border-radius: 14px;
       outline: none;
     }
 
     input:focus {
       border-color: #111827;
-      box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.12);
+      box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.15);
     }
 
     button {
+      padding: 0 22px;
       border: none;
       border-radius: 14px;
-      padding: 0 22px;
-      background: var(--dark);
+      background: #111827;
       color: white;
       font-size: 16px;
-      font-weight: 700;
+      font-weight: bold;
       cursor: pointer;
     }
 
@@ -104,41 +93,46 @@
       opacity: 0.9;
     }
 
-    .result-card {
+    .result {
       margin-top: 24px;
-      padding: 24px;
-      background: var(--soft);
-      border-radius: 18px;
+      padding: 28px;
+      background: #eef0f4;
+      border-radius: 20px;
       text-align: center;
     }
 
-    .small-title {
-      color: var(--muted);
-      font-size: 14px;
+    .result-title {
+      font-size: 15px;
+      color: #6b7280;
       margin-bottom: 8px;
     }
 
     .degree {
-      font-size: 46px;
-      font-weight: 800;
-      color: var(--dark);
-      letter-spacing: -1px;
+      font-size: 48px;
+      font-weight: 900;
+      color: #111827;
     }
 
     .degree span {
       font-size: 24px;
-      color: var(--muted);
+      color: #6b7280;
+    }
+
+    .note {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #6b7280;
     }
 
     .warning {
       display: none;
-      margin-top: 14px;
-      color: #92400e;
-      background: #fff7ed;
-      border: 1px solid #fed7aa;
+      margin-top: 16px;
       padding: 12px;
       border-radius: 12px;
-      line-height: 1.45;
+      background: #fff7ed;
+      color: #92400e;
+      border: 1px solid #fed7aa;
+      line-height: 1.5;
     }
 
     .grid {
@@ -149,7 +143,7 @@
     }
 
     .box {
-      border: 1px solid var(--border);
+      border: 1px solid #d1d5db;
       border-radius: 16px;
       padding: 18px;
       background: white;
@@ -157,59 +151,47 @@
 
     .box h3 {
       margin: 0 0 10px;
-      font-size: 16px;
+      font-size: 17px;
     }
 
     .box p {
       margin: 0;
-      color: var(--muted);
-      line-height: 1.55;
+      color: #6b7280;
+      line-height: 1.6;
       font-size: 14px;
     }
 
     code {
       background: #f3f4f6;
-      padding: 2px 5px;
+      padding: 2px 6px;
       border-radius: 5px;
-      font-size: 13px;
+      color: #111827;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
       font-size: 14px;
     }
 
     th, td {
-      border-bottom: 1px solid #e5e7eb;
       padding: 8px;
+      border-bottom: 1px solid #e5e7eb;
       text-align: left;
     }
 
     th {
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .copy-note {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 13px;
+      color: #6b7280;
     }
 
     @media (max-width: 640px) {
-      body {
-        padding: 12px;
+      .header,
+      .content {
+        padding: 24px;
       }
 
-      .hero, .content {
-        padding-left: 22px;
-        padding-right: 22px;
-      }
-
-      .hero h1 {
-        font-size: 24px;
+      .header h1 {
+        font-size: 25px;
       }
 
       .input-row {
@@ -230,59 +212,65 @@
     }
   </style>
 </head>
+
 <body>
   <main class="container">
-    <section class="hero">
-      <h1>Robot Motor Degree Calculator</h1>
-      <p>Enter the target distance in centimeters. The calculator will automatically convert it into motor rotation degrees using your robot's measured calibration data.</p>
+    <section class="header">
+      <h1>機器人馬達角度計算機</h1>
+      <p>
+        輸入你想讓車子前進的距離，系統會自動換算成馬達需要旋轉的角度。
+        公式是根據你實際測量的資料校正出來的。
+      </p>
     </section>
 
     <section class="content">
-      <label for="cmInput">Target distance, in centimeters</label>
+      <label for="cmInput">請輸入目標距離，單位：公分</label>
+
       <div class="input-row">
-        <input id="cmInput" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Example: 36" />
-        <button onclick="copyDegrees()">Copy degrees</button>
+        <input id="cmInput" type="number" step="0.01" min="0" placeholder="例如：36">
+        <button onclick="copyDegrees()">複製角度</button>
       </div>
 
-      <div class="result-card">
-        <div class="small-title">Required motor rotation</div>
-        <div class="degree" id="degreeOutput">0.00 <span>degrees</span></div>
-        <div class="copy-note" id="copyNote">Type a value above to calculate instantly.</div>
+      <div class="result">
+        <div class="result-title">馬達需要旋轉</div>
+        <div class="degree" id="degreeOutput">0.00 <span>度</span></div>
+        <div class="note" id="copyNote">輸入公分後會自動計算</div>
         <div class="warning" id="warningBox"></div>
       </div>
 
       <div class="grid">
         <div class="box">
-          <h3>Formula used</h3>
+          <h3>使用公式</h3>
           <p>
-            Distance calibration:<br>
-            <code>cm = -0.000025θ² + 0.0975θ + 1</code><br><br>
-            Inverse formula for the website:<br>
-            <code>θ = 50 × (39 - √(1537 - 16cm))</code>
+            距離校正公式：<br>
+            <code>公分 = -0.000025 × 角度² + 0.0975 × 角度 + 1</code>
+            <br><br>
+            反推角度公式：<br>
+            <code>角度 = 50 × (39 - √(1537 - 16 × 公分))</code>
           </p>
         </div>
 
         <div class="box">
-          <h3>Your calibration points</h3>
+          <h3>你的實測資料</h3>
           <table>
             <thead>
               <tr>
-                <th>Motor degrees</th>
-                <th>Distance</th>
+                <th>馬達角度</th>
+                <th>實際位移</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>100°</td>
-                <td>10.5 cm</td>
+                <td>100 度</td>
+                <td>10.5 公分</td>
               </tr>
               <tr>
-                <td>200°</td>
-                <td>19.5 cm</td>
+                <td>200 度</td>
+                <td>19.5 公分</td>
               </tr>
               <tr>
-                <td>400°</td>
-                <td>36 cm</td>
+                <td>400 度</td>
+                <td>36 公分</td>
               </tr>
             </tbody>
           </table>
@@ -300,17 +288,18 @@
     let latestDegrees = 0;
 
     function calculateDegrees(cm) {
-      if (cm <= 0) return 0;
+      if (cm <= 0) {
+        return 0;
+      }
 
-      // Most accurate formula from the 3 measured calibration points:
-      // degrees = 50 * (39 - sqrt(1537 - 16 * cm))
       const insideRoot = 1537 - 16 * cm;
 
       if (insideRoot < 0) {
         return NaN;
       }
 
-      return 50 * (39 - Math.sqrt(insideRoot));
+      const degrees = 50 * (39 - Math.sqrt(insideRoot));
+      return degrees;
     }
 
     function updateCalculator() {
@@ -321,8 +310,8 @@
 
       if (Number.isNaN(cm)) {
         latestDegrees = 0;
-        degreeOutput.innerHTML = `0.00 <span>degrees</span>`;
-        copyNote.textContent = "Type a value above to calculate instantly.";
+        degreeOutput.innerHTML = `0.00 <span>度</span>`;
+        copyNote.textContent = "輸入公分後會自動計算";
         return;
       }
 
@@ -330,32 +319,34 @@
       latestDegrees = degrees;
 
       if (Number.isNaN(degrees)) {
-        degreeOutput.innerHTML = `Invalid <span>value</span>`;
-        copyNote.textContent = "The number is too large for this formula.";
+        degreeOutput.innerHTML = `無效 <span>數值</span>`;
+        copyNote.textContent = "這個距離超出目前公式可計算範圍";
         warningBox.style.display = "block";
-        warningBox.textContent = "This target distance is outside the mathematical range of the current calibration curve. Please test a new longer distance and add it to the calibration.";
+        warningBox.textContent = "這個數值太大，目前的校正公式無法計算。建議再測量更遠距離的資料，加入新的校正點。";
         return;
       }
 
-      degreeOutput.innerHTML = `${degrees.toFixed(2)} <span>degrees</span>`;
-      copyNote.textContent = `Rounded command value: ${Math.round(degrees)} degrees`;
+      degreeOutput.innerHTML = `${degrees.toFixed(2)} <span>度</span>`;
+      copyNote.textContent = `建議輸入機器人的整數角度：${Math.round(degrees)} 度`;
 
       if (cm < 10.5 || cm > 36) {
         warningBox.style.display = "block";
-        warningBox.textContent = "Warning: this value is outside your measured test range of 10.5 cm to 36 cm, so it is an estimate. For better accuracy, measure more points and update the formula.";
+        warningBox.textContent = "提醒：這個距離超出你目前實測的 10.5～36 公分範圍，所以結果是估算值。如果要更準，建議多測幾組距離。";
       }
     }
 
     async function copyDegrees() {
-      if (Number.isNaN(latestDegrees)) return;
+      if (Number.isNaN(latestDegrees)) {
+        return;
+      }
 
-      const rounded = Math.round(latestDegrees).toString();
+      const roundedDegrees = Math.round(latestDegrees).toString();
 
       try {
-        await navigator.clipboard.writeText(rounded);
-        copyNote.textContent = `Copied: ${rounded} degrees`;
-      } catch (e) {
-        copyNote.textContent = `Copy failed. Use this value: ${rounded} degrees`;
+        await navigator.clipboard.writeText(roundedDegrees);
+        copyNote.textContent = `已複製：${roundedDegrees} 度`;
+      } catch (error) {
+        copyNote.textContent = `複製失敗，請手動輸入：${roundedDegrees} 度`;
       }
     }
 
