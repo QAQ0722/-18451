@@ -25,7 +25,7 @@
 
     .container {
       width: 100%;
-      max-width: 760px;
+      max-width: 820px;
       background: white;
       border-radius: 24px;
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
@@ -68,9 +68,9 @@
     }
 
     input {
-      flex: 1;
-      padding: 16px;
-      font-size: 22px;
+      width: 100%;
+      padding: 14px;
+      font-size: 20px;
       border: 1px solid #d1d5db;
       border-radius: 14px;
       outline: none;
@@ -90,6 +90,7 @@
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     button:hover {
@@ -147,14 +148,14 @@
 
     .box {
       border: 1px solid #d1d5db;
-      border-radius: 16px;
-      padding: 18px;
+      border-radius: 18px;
+      padding: 20px;
       background: white;
     }
 
     .box h3 {
-      margin: 0 0 10px;
-      font-size: 17px;
+      margin: 0 0 12px;
+      font-size: 19px;
     }
 
     .box p {
@@ -165,16 +166,19 @@
     }
 
     code {
+      display: inline-block;
       background: #f3f4f6;
-      padding: 2px 6px;
-      border-radius: 5px;
+      padding: 4px 7px;
+      border-radius: 6px;
       color: #111827;
+      margin-top: 4px;
+      line-height: 1.6;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
+      font-size: 15px;
     }
 
     th, td {
@@ -185,6 +189,27 @@
 
     th {
       color: #6b7280;
+    }
+
+    .cal-input {
+      font-size: 16px;
+      padding: 9px 10px;
+      border-radius: 10px;
+    }
+
+    .mini-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .mini-buttons button {
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+
+    .formula-text {
+      word-break: break-word;
     }
 
     /* 細版滑鼠尾翼 */
@@ -246,7 +271,7 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 700px) {
       .header,
       .content {
         padding: 24px;
@@ -280,8 +305,8 @@
     <section class="header">
       <h1>機器人馬達角度計算機</h1>
       <p>
-        輸入你想讓車子前進的距離，系統會自動換算成馬達需要旋轉的角度。
-        公式是根據你實際測量的資料校正出來的。
+        輸入車子要前進的公分數，系統會自動換算馬達需要旋轉幾度。
+        下方實測資料可以自己修改，修改後公式會自動更新。
       </p>
     </section>
 
@@ -302,17 +327,6 @@
 
       <div class="grid">
         <div class="box">
-          <h3>使用公式</h3>
-          <p>
-            距離校正公式：<br>
-            <code>公分 = -0.000025 × 角度² + 0.0975 × 角度 + 1</code>
-            <br><br>
-            反推角度公式：<br>
-            <code>角度 = 50 × (39 - √(1537 - 16 × 公分))</code>
-          </p>
-        </div>
-
-        <div class="box">
           <h3>你的實測資料</h3>
           <table>
             <thead>
@@ -323,19 +337,39 @@
             </thead>
             <tbody>
               <tr>
-                <td>100 度</td>
-                <td>10.5 公分</td>
+                <td><input class="cal-input angle-input" type="number" step="0.01" value="100"></td>
+                <td><input class="cal-input cm-input" type="number" step="0.01" value="10.5"></td>
               </tr>
               <tr>
-                <td>200 度</td>
-                <td>19.5 公分</td>
+                <td><input class="cal-input angle-input" type="number" step="0.01" value="200"></td>
+                <td><input class="cal-input cm-input" type="number" step="0.01" value="19.5"></td>
               </tr>
               <tr>
-                <td>400 度</td>
-                <td>36 公分</td>
+                <td><input class="cal-input angle-input" type="number" step="0.01" value="400"></td>
+                <td><input class="cal-input cm-input" type="number" step="0.01" value="36"></td>
               </tr>
             </tbody>
           </table>
+
+          <div class="mini-buttons">
+            <button onclick="resetCalibration()">恢復預設</button>
+            <button onclick="saveCalibration()">儲存資料</button>
+          </div>
+
+          <p style="margin-top: 12px;">
+            修改任一格後，公式會立刻重新計算。
+          </p>
+        </div>
+
+        <div class="box">
+          <h3>目前公式</h3>
+          <p class="formula-text">
+            距離校正公式：<br>
+            <code id="formulaOutput">公分 = ...</code>
+            <br><br>
+            換算方式：<br>
+            <code>輸入公分 → 自動反推馬達角度</code>
+          </p>
         </div>
       </div>
     </section>
@@ -346,54 +380,204 @@
     const degreeOutput = document.getElementById("degreeOutput");
     const warningBox = document.getElementById("warningBox");
     const copyNote = document.getElementById("copyNote");
+    const formulaOutput = document.getElementById("formulaOutput");
+
+    const angleInputs = document.querySelectorAll(".angle-input");
+    const cmInputs = document.querySelectorAll(".cm-input");
 
     let latestDegrees = 0;
+    let coefficientA = -0.000025;
+    let coefficientB = 0.0975;
+    let coefficientC = 1;
 
-    function calculateDegrees(cm) {
-      if (cm <= 0) {
+    function getCalibrationPoints() {
+      const points = [];
+
+      for (let i = 0; i < 3; i++) {
+        const angle = parseFloat(angleInputs[i].value);
+        const cm = parseFloat(cmInputs[i].value);
+
+        if (Number.isNaN(angle) || Number.isNaN(cm)) {
+          return null;
+        }
+
+        points.push({
+          angle: angle,
+          cm: cm
+        });
+      }
+
+      return points;
+    }
+
+    function calculateQuadraticFormula() {
+      const points = getCalibrationPoints();
+
+      if (points === null) {
+        formulaOutput.textContent = "資料不完整，請確認每格都有數字";
+        return false;
+      }
+
+      const x1 = points[0].angle;
+      const y1 = points[0].cm;
+      const x2 = points[1].angle;
+      const y2 = points[1].cm;
+      const x3 = points[2].angle;
+      const y3 = points[2].cm;
+
+      if (x1 === x2 || x1 === x3 || x2 === x3) {
+        formulaOutput.textContent = "三組馬達角度不能一樣";
+        return false;
+      }
+
+      const denominator = (x1 - x2) * (x1 - x3) * (x2 - x3);
+
+      coefficientA = (
+        x3 * (y2 - y1) +
+        x2 * (y1 - y3) +
+        x1 * (y3 - y2)
+      ) / denominator;
+
+      coefficientB = (
+        x3 * x3 * (y1 - y2) +
+        x2 * x2 * (y3 - y1) +
+        x1 * x1 * (y2 - y3)
+      ) / denominator;
+
+      coefficientC = (
+        x2 * x3 * (x2 - x3) * y1 +
+        x3 * x1 * (x3 - x1) * y2 +
+        x1 * x2 * (x1 - x2) * y3
+      ) / denominator;
+
+      formulaOutput.textContent =
+        "公分 = " +
+        coefficientA.toFixed(8) +
+        " × 角度² + " +
+        coefficientB.toFixed(8) +
+        " × 角度 + " +
+        coefficientC.toFixed(8);
+
+      return true;
+    }
+
+    function calculateDegrees(targetCm) {
+      if (targetCm <= 0) {
         return 0;
       }
 
-      const insideRoot = 1537 - 16 * cm;
+      const success = calculateQuadraticFormula();
 
-      if (insideRoot < 0) {
+      if (!success) {
         return NaN;
       }
 
-      const degrees = 50 * (39 - Math.sqrt(insideRoot));
-      return degrees;
+      const a = coefficientA;
+      const b = coefficientB;
+      const c = coefficientC - targetCm;
+
+      if (Math.abs(a) < 0.000000001) {
+        if (Math.abs(b) < 0.000000001) {
+          return NaN;
+        }
+
+        return -c / b;
+      }
+
+      const discriminant = b * b - 4 * a * c;
+
+      if (discriminant < 0) {
+        return NaN;
+      }
+
+      const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+      const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+
+      const points = getCalibrationPoints();
+      const angles = points.map(p => p.angle);
+      const minAngle = Math.min(...angles);
+      const maxAngle = Math.max(...angles);
+
+      const candidates = [root1, root2].filter(value => value >= 0 && Number.isFinite(value));
+
+      if (candidates.length === 0) {
+        return NaN;
+      }
+
+      const insideCandidates = candidates.filter(value => value >= minAngle && value <= maxAngle);
+
+      if (insideCandidates.length > 0) {
+        return insideCandidates[0];
+      }
+
+      let best = candidates[0];
+      let bestDistance = Infinity;
+
+      for (const value of candidates) {
+        let distance;
+
+        if (value < minAngle) {
+          distance = minAngle - value;
+        } else if (value > maxAngle) {
+          distance = value - maxAngle;
+        } else {
+          distance = 0;
+        }
+
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = value;
+        }
+      }
+
+      return best;
     }
 
     function updateCalculator() {
-      const cm = parseFloat(cmInput.value);
+      const targetCm = parseFloat(cmInput.value);
 
       warningBox.style.display = "none";
       warningBox.textContent = "";
 
-      if (Number.isNaN(cm)) {
+      calculateQuadraticFormula();
+
+      if (Number.isNaN(targetCm)) {
         latestDegrees = 0;
         degreeOutput.innerHTML = `0.00 <span>度</span>`;
         copyNote.textContent = "輸入公分後會自動計算";
         return;
       }
 
-      const degrees = calculateDegrees(cm);
+      const degrees = calculateDegrees(targetCm);
       latestDegrees = degrees;
 
       if (Number.isNaN(degrees)) {
         degreeOutput.innerHTML = `無效 <span>數值</span>`;
-        copyNote.textContent = "這個距離超出目前公式可計算範圍";
+        copyNote.textContent = "目前資料無法換算這個距離";
         warningBox.style.display = "block";
-        warningBox.textContent = "這個數值太大，目前的校正公式無法計算。建議再測量更遠距離的資料，加入新的校正點。";
+        warningBox.textContent = "請確認三組實測資料都正確，而且馬達角度不要重複。";
         return;
       }
 
       degreeOutput.innerHTML = `${degrees.toFixed(2)} <span>度</span>`;
       copyNote.textContent = `建議輸入機器人的整數角度：${Math.round(degrees)} 度`;
 
-      if (cm < 10.5 || cm > 36) {
-        warningBox.style.display = "block";
-        warningBox.textContent = "提醒：這個距離超出你目前實測的 10.5～36 公分範圍，所以結果是估算值。如果要更準，建議多測幾組距離。";
+      const points = getCalibrationPoints();
+
+      if (points !== null) {
+        const distances = points.map(p => p.cm);
+        const minCm = Math.min(...distances);
+        const maxCm = Math.max(...distances);
+
+        if (targetCm < minCm || targetCm > maxCm) {
+          warningBox.style.display = "block";
+          warningBox.textContent =
+            "提醒：這個距離超出你目前實測的 " +
+            minCm +
+            "～" +
+            maxCm +
+            " 公分範圍，所以結果是估算值。如果要更準，建議多測幾組距離。";
+        }
       }
     }
 
@@ -412,7 +596,64 @@
       }
     }
 
+    function saveCalibration() {
+      const points = getCalibrationPoints();
+
+      if (points === null) {
+        copyNote.textContent = "儲存失敗：請確認每格都有數字";
+        return;
+      }
+
+      localStorage.setItem("robotCalibrationPoints", JSON.stringify(points));
+      copyNote.textContent = "已儲存實測資料";
+    }
+
+    function loadCalibration() {
+      const saved = localStorage.getItem("robotCalibrationPoints");
+
+      if (!saved) {
+        return;
+      }
+
+      try {
+        const points = JSON.parse(saved);
+
+        for (let i = 0; i < 3; i++) {
+          angleInputs[i].value = points[i].angle;
+          cmInputs[i].value = points[i].cm;
+        }
+      } catch (error) {
+        localStorage.removeItem("robotCalibrationPoints");
+      }
+    }
+
+    function resetCalibration() {
+      angleInputs[0].value = 100;
+      cmInputs[0].value = 10.5;
+
+      angleInputs[1].value = 200;
+      cmInputs[1].value = 19.5;
+
+      angleInputs[2].value = 400;
+      cmInputs[2].value = 36;
+
+      localStorage.removeItem("robotCalibrationPoints");
+      updateCalculator();
+      copyNote.textContent = "已恢復預設資料";
+    }
+
     cmInput.addEventListener("input", updateCalculator);
+
+    for (const input of angleInputs) {
+      input.addEventListener("input", updateCalculator);
+    }
+
+    for (const input of cmInputs) {
+      input.addEventListener("input", updateCalculator);
+    }
+
+    loadCalibration();
+    updateCalculator();
 
     /* 細版滑鼠尾翼程式 */
     let lastMouseX = null;
