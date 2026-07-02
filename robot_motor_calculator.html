@@ -219,7 +219,7 @@
       <h1>機器人馬達角度計算機</h1>
       <p>
         輸入你想讓車子前進的距離，系統會自動換算成馬達需要旋轉的角度。
-        公式是根據你實際測量的資料校正出來的。
+        公式是根據實際測量資料校正出來的。
       </p>
     </section>
 
@@ -251,7 +251,7 @@
         </div>
 
         <div class="box">
-          <h3>你的實測資料</h3>
+          <h3>實測資料</h3>
           <table>
             <thead>
               <tr>
@@ -327,11 +327,11 @@
       }
 
       degreeOutput.innerHTML = `${degrees.toFixed(2)} <span>度</span>`;
-      copyNote.textContent = `建議輸入機器人的整數角度：${Math.round(degrees)} 度`;
+      copyNote.textContent = `計算結果：${degrees.toFixed(2)} 度`;
 
       if (cm < 10.5 || cm > 36) {
         warningBox.style.display = "block";
-        warningBox.textContent = "提醒：這個距離超出你目前實測的 10.5～36 公分範圍，所以結果是估算值。如果要更準，建議多測幾組距離。";
+        warningBox.textContent = "提醒：這個距離超出目前實測的 10.5～36 公分範圍，所以結果是估算值。如果要更準，建議多測幾組距離。";
       }
     }
 
@@ -340,13 +340,13 @@
         return;
       }
 
-      const roundedDegrees = Math.round(latestDegrees).toString();
+      const exactDegrees = latestDegrees.toFixed(2);
 
       try {
-        await navigator.clipboard.writeText(roundedDegrees);
-        copyNote.textContent = `已複製：${roundedDegrees} 度`;
+        await navigator.clipboard.writeText(exactDegrees);
+        copyNote.textContent = `已複製：${exactDegrees} 度`;
       } catch (error) {
-        copyNote.textContent = `複製失敗，請手動輸入：${roundedDegrees} 度`;
+        copyNote.textContent = `複製失敗，請手動輸入：${exactDegrees} 度`;
       }
     }
 
